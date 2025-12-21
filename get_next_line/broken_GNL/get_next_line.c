@@ -110,7 +110,10 @@ char *get_next_line(int fd)
 		if (by_read == 0)
 		{
 			if (ret && !ret[0])
+			{
+				free(ret);
 				return NULL;
+			}
 			return ret;
 		}
 		tmp = ft_strchr(buf, '\n');
