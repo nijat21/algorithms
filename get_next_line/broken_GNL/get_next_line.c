@@ -1,11 +1,11 @@
 #include "get_next_line.h"
 
-int ft_stlen(char *s)
+int ft_strlen(char *s)
 {
 	int i;
 
 	i = 0;
-	while (*s)
+	while (s && *s)
 	{
 		s++;
 		i++;
@@ -13,17 +13,14 @@ int ft_stlen(char *s)
 	return i;
 }
 
-void *ft_strchr(char *s, char c)
+char *ft_strchr(char *s, char c)
 {
 	int i;
 
 	i = 0;
-	while (*s != c)
-	{
-		s++;
+	while (s && s[i] && s[i] != c)
 		i++;
-	}
-	if (*s == c)
+	if (s && s[i] && s[i] == c)
 		return s + i;
 	return NULL;
 }
@@ -64,46 +61,63 @@ int copy_buf_partial(char **ret, char *buf, int size2)
 {
 	char *temp;
 	int size1;
+	int i;
 	int j;
 
-	size1 = ft_stlen(*ret);
+	size1 = ft_strlen(*ret);
 	temp = malloc(size1 + size2 + 1);
 	if (!temp)
+	{
+		free(*ret);
 		return 1;
-	while (**ret)
-		*temp++ = **ret++;
+	}
+	i = 0;
+	while (ret && *ret && (*ret)[i])
+	{
+		temp[i] = (*ret)[i];
+		i++;
+	}
 	j = 0;
 	while (j < size2)
 	{
-		*temp++ = *buf++;
+		temp[i] = buf[j];
 		j++;
+		i++;
 	}
-	*temp = 0;
+	temp[i] = 0;
 	*ret = temp;
 	return 0;
 }
 
 int copy_buf_full(char **ret, char *buf)
 {
-	return copy_buf_partial(ret, buf, ft_stlen(buf));
+	return copy_buf_partial(ret, buf, ft_strlen(buf));
 }
 
 char *get_next_line(int fd)
 {
 	static char buf[BUFFER_SIZE] = "";
 	char *ret = NULL;
-
 	char *tmp = ft_strchr(buf, '\n');
 	while (!tmp)
 	{
-		if (!copy_buf_full(&ret, buf))
+		if (copy_buf_full(&ret, buf))
 			return NULL;
 		int by_read = read(fd, buf, BUFFER_SIZE);
 		if (by_read < 0)
 			return NULL;
+		buf[by_read] = 0;
+		if (by_read == 0)
+		{
+			if (ret && !ret[0])
+				return NULL;
+			return ret;
+		}
+		tmp = ft_strchr(buf, '\n');
 	}
-	if (!copy_buf_partial(&ret, buf, tmp - buf + 1))
+	if (copy_buf_partial(&ret, buf, tmp - buf + 1))
 		return NULL;
+	ft_memmove(buf, tmp + 1, ft_strlen(tmp));
 	return ret;
 }
 
@@ -115,5 +129,11 @@ int main()
 		printf("Couldn't open\n");
 		return 1;
 	}
-	printf("%s", get_next_line(fd));
+
+	char *line;
+	while ((line = get_next_line(fd)))
+	{
+		printf("%s", line);
+		free(line);
+	}
 }
