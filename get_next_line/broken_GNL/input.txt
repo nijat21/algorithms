@@ -1,3 +1,0 @@
-something long
-and uncommon
-42

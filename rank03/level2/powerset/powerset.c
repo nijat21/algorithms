@@ -1,11 +1,9 @@
-#include <unistd.h>
-#include <stdlib.h>
 #include <stdio.h>
+#include <stdlib.h>
 
 void print_arr(int *arr, int len)
 {
     int i = -1;
-
     while (++i < len)
     {
         if (i > 0)
@@ -15,19 +13,21 @@ void print_arr(int *arr, int len)
     printf("\n");
 }
 
-void subsets(int *nums, int *arr, int l, int r, int target, int sum, int arr_len)
+void powerset(int *nums, int len, int *arr, int arr_len, int pos, int target, int sum)
 {
-    int i = -1;
-
     if (sum == target)
+    {
         print_arr(arr, arr_len);
-    i = l;
-    while (i < r)
+        if (pos == len)
+            return;
+    }
+    int i = pos;
+    while (i < len)
     {
         arr[arr_len] = nums[i];
         sum += arr[arr_len];
         arr_len++;
-        subsets(nums, arr, i + 1, r, target, sum, arr_len);
+        powerset(nums, len, arr, arr_len, i + 1, target, sum);
         arr_len--;
         sum -= arr[arr_len];
         i++;
@@ -36,16 +36,14 @@ void subsets(int *nums, int *arr, int l, int r, int target, int sum, int arr_len
 
 int main(int ac, char **av)
 {
-    int nums[ac - 2];
-    int arr[ac - 2];
-    int target;
-
     if (ac < 3)
         return 1;
-
-    target = atoi(av[1]);
+    int len = ac - 2;
+    int nums[len];
+    int arr[len];
     int i = 1;
     while (++i < ac)
         nums[i - 2] = atoi(av[i]);
-    subsets(nums, arr, 0, ac - 2, target, 0, 0);
+    int target = atoi(av[1]);
+    powerset(nums, len, arr, 0, 0, target, 0);
 }
