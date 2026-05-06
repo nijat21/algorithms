@@ -2,6 +2,10 @@
 #include <stdlib.h>
 #include <unistd.h>
 
+/*
+    The version of ft_peopen manipulating fds in child process.
+*/
+
 int ft_popen(const char *file, char *const argv[], char type) {
     int fds[2];
     pid_t pid;
